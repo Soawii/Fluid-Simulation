@@ -60,11 +60,15 @@ public:
 		if (p.pos.x < min.x || p.pos.y < min.y || p.pos.x > max.x || p.pos.y > max.y)
 			return false;
 		const sf::Vector2f position = p.pos;
+		
+		bool all_positive = true, all_negative = true;
 		for (int i = 0; i < vertices.size(); i++)
 		{
 			const sf::Vector2f vert_to_point = position - vertices[i];
 			const float dot = vert_to_point.x * normals[i].x + vert_to_point.y * normals[i].y;
-			if (dot >= 0)
+			all_positive &= (dot > 0);
+			all_negative &= (dot < 0);
+			if (!all_positive && !all_negative)
 				return false;
 		}
 		return true;
@@ -76,16 +80,19 @@ public:
 			return;
 
 		const sf::Vector2f position = p.pos;
-		float smallestDot = -1000000000.0f;
+		float smallestDot = 1000000000.0f;
 		sf::Vector2f bestNormal;
 
+		bool all_positive = true, all_negative = true;
 		for (int i = 0; i < vertices.size(); i++)
 		{
 			const sf::Vector2f vert_to_point = position - vertices[i];
 			const float dot = vert_to_point.x * normals[i].x + vert_to_point.y * normals[i].y;
-			if (dot >= 0)
+			all_positive &= (dot > 0);
+			all_negative &= (dot < 0);
+			if (!all_positive && !all_negative)
 				return;
-			if (dot > smallestDot)
+			if (abs(dot) < abs(smallestDot))
 			{
 				smallestDot = dot;
 				bestNormal = normals[i];

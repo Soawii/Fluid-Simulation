@@ -37,7 +37,7 @@ public:
 
 						if (conf::spawnMode == SpawnMode::RECT)
 						{
-							sim.objects.push_back(new RectangleObject(leftButtonPressedPos, mouse_pos, 0.5f));
+							sim.objects.push_back(new RectangleObject(leftButtonPressedPos, mouse_pos, conf::rectangle_thickness));
 						}
 						else if (conf::spawnMode == SpawnMode::CIRCLE)
 						{
@@ -141,7 +141,7 @@ public:
 				conf::COLOR_OBJECT.a = 200;
 				if (conf::spawnMode == SpawnMode::RECT)
 				{
-					RectangleObject rect = RectangleObject(leftButtonPressedPos, mouse_pos, 0.5f);
+					RectangleObject rect = RectangleObject(leftButtonPressedPos, mouse_pos, conf::rectangle_thickness);
 					conf::window.draw(rect);
 				}
 				else if (conf::spawnMode == SpawnMode::CIRCLE)
@@ -199,7 +199,7 @@ public:
 				{
 					Particle p(mouse_pos);
 					p.v = -temp * 2.0f;
-					spawner.spawnLine(p, 1, conf::particle_radius * 2.5f);
+					spawner.spawnLine(p, conf::particle_radius * 2.5f);
 				}
 			}
 			else if (conf::mode == Mode::DRAG)

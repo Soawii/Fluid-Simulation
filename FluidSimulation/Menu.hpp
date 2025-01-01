@@ -23,6 +23,9 @@ public:
 		float MIN_PLASTICITY = 0.0f, MAX_PLASTICITY = 100.0f;
 		float MIN_ALPHA_VISCOSITY = 0.0f, MAX_ALPHA_VISCOSITY = 10.0f;
 		float MIN_BETA_VISCOSITY = 0.0f, MAX_BETA_VISCOSITY = 10.0f;
+		float MIN_DT = 1.0f / 200, MAX_DT = 1.0f / 30;
+		float MIN_PARTICLE_AMOUNT = 1.0f, MAX_PARTICLE_AMOUNT = 12.0f;
+		float MIN_RECT_THICKNESS = 0.2f, MAX_RECT_THICKNESS = 2.0f;
 
 		DEFAULT_FONT.loadFromFile("font.ttf");
 
@@ -42,11 +45,14 @@ public:
 		Slider* near_stiffness = new Slider(new RoundRectShape(sf::Vector2f(200.0f, 200.0f), sf::Vector2f(150.0f, 30.0f), 10.0f), text, 0.5, 1);
 		near_stiffness->setChangingValue(&conf::k_near, MIN_NEAR_STIFFNESS, MAX_NEAR_STIFFNESS, "near stiffness");
 
-		Slider* spring_stiffness = new Slider(new RoundRectShape(sf::Vector2f(200.0f, 200.0f), sf::Vector2f(150.0f, 30.0f), 10.0f), text, 0.5, 1);
-		spring_stiffness->setChangingValue(&conf::k_spring, MIN_SPRING_STIFFNESS, MAX_SPRING_STIFFNESS, "spring stiffness");
-
 		Slider* rest_density = new Slider(new RoundRectShape(sf::Vector2f(200.0f, 200.0f), sf::Vector2f(150.0f, 30.0f), 10.0f), text, 0.5, 1);
 		rest_density->setChangingValue(&conf::density_rest, MIN_REST_DENSITY, MAX_REST_DENSITY, "rest density");
+
+		Slider* timeframe = new Slider(new RoundRectShape(sf::Vector2f(200.0f, 200.0f), sf::Vector2f(150.0f, 30.0f), 10.0f), text, 0.5, 1);
+		timeframe->setChangingValue(&conf::dt, MIN_DT, MAX_DT, "timeframe", 3);
+
+		Slider* spring_stiffness = new Slider(new RoundRectShape(sf::Vector2f(200.0f, 200.0f), sf::Vector2f(150.0f, 30.0f), 10.0f), text, 0.5, 1);
+		spring_stiffness->setChangingValue(&conf::k_spring, MIN_SPRING_STIFFNESS, MAX_SPRING_STIFFNESS, "spring stiffness");
 
 		Slider* yield_ratio = new Slider(new RoundRectShape(sf::Vector2f(200.0f, 200.0f), sf::Vector2f(70.0f, 30.0f), 10.0f), text, 0.5, 1);
 		yield_ratio->setChangingValue(&conf::yield_ratio, MIN_YIELD_RATIO, MAX_YIELD_RATIO, "yield ratio");
@@ -75,8 +81,9 @@ public:
 		settings_layout->addItem(interaction_radius);
 		settings_layout->addItem(stiffness);
 		settings_layout->addItem(near_stiffness);
-		settings_layout->addItem(spring_stiffness);
 		settings_layout->addItem(rest_density);
+		settings_layout->addItem(timeframe);
+		settings_layout->addItem(spring_stiffness);
 		settings_layout->addItem(yield_plasticity_layout);
 		settings_layout->addItem(viscosity_layout);
 		settings_layout->drawShape = true;
@@ -93,13 +100,27 @@ public:
 		sf::Vector2f BUTTON_SIZE(60.0f, 60.0f);
 		float BUTTON_RADIUS = 10.0f;
 		
+		Slider* particle_amount = new Slider(new RoundRectShape(sf::Vector2f(200.0f, 200.0f), sf::Vector2f(BUTTON_SIZE.x + 10.0f, 30.0f), 10.0f), text, 0.5, 1);
+		particle_amount->setChangingValue(&conf::particle_amount, MIN_PARTICLE_AMOUNT, MAX_PARTICLE_AMOUNT, "particles", 0);
+		particle_amount->enabled = false;
+
+		Slider* rect_thickness = new Slider(new RoundRectShape(sf::Vector2f(200.0f, 200.0f), sf::Vector2f(BUTTON_SIZE.x + 10.0f, 30.0f), 10.0f), text, 0.5, 1);
+		rect_thickness->setChangingValue(&conf::rectangle_thickness, MIN_RECT_THICKNESS, MAX_RECT_THICKNESS, "thickness", 1);
+		rect_thickness->enabled = false;
+
 		text.setString("particle");
 		SwitchableButton* particle = new SwitchableButton(new RoundRectShape({0.0f, 0.0f}, BUTTON_SIZE, BUTTON_RADIUS), text, 1);
-		particle->setOnAction([particle]() {if (particle->isPressed()) conf::spawnMode = SpawnMode::PARTICLE; });
-		
+		particle->setOnAction([particle, particle_amount]() {
+			if (particle->isPressed()) { particle_amount->enabled = true;  conf::spawnMode = SpawnMode::PARTICLE; }
+			else { particle_amount->enabled = false; }
+			});
+
 		text.setString("rectangle");
 		SwitchableButton* rectangle = new SwitchableButton(new RoundRectShape({ 0.0f, 0.0f }, BUTTON_SIZE, BUTTON_RADIUS), text, 1);
-		rectangle->setOnAction([rectangle]() {if (rectangle->isPressed()) conf::spawnMode = SpawnMode::RECT; });
+		rectangle->setOnAction([rectangle, rect_thickness]() {
+			if (rectangle->isPressed()) { rect_thickness->enabled = true; conf::spawnMode = SpawnMode::RECT;}
+			else { rect_thickness->enabled = false; }
+			});
 
 		text.setString("circle");
 		SwitchableButton* circle = new SwitchableButton(new RoundRectShape({ 0.0f, 0.0f }, BUTTON_SIZE, BUTTON_RADIUS), text, 1);
@@ -137,19 +158,29 @@ public:
 		DropDown* spawn_dropDown = new DropDown(
 			new SwitchableButton(new RoundRectShape({conf::WIDTH - BUTTON_SIZE.x - spawn_layout->widget_padding * 2 - 10.0f, 10.0f }, sf::Vector2f(NEW_BUTTON_SIZE.x, 40.0f), 15.0f), text, 2),
 			spawn_layout);
-		spawn_dropDown->enabled = false;
+
+		LinearLayout* spawn_settings = new LinearLayout(new RoundRectShape(sf::Vector2f(100.0f, 100.0f), sf::Vector2f(150.0f, 50.0f), 10.0f), 1, true);
+		spawn_settings->widget_padding = 10.0f;
+		spawn_settings->addItem(spawn_dropDown);
+		spawn_settings->addItem(particle_amount);
+		spawn_settings->addItem(rect_thickness);
+		spawn_settings->mode = ContainerMode::FIT_WIDGETS;
+		spawn_settings->enabled = false;
 
 		text.setString("spawn");
 		SwitchableButton* spawn_switch = new SwitchableButton(new RoundRectShape({ 0.0f, 0.0f }, NEW_BUTTON_SIZE, BUTTON_RADIUS), text, 1);
-		spawn_switch->setOnAction([spawn_switch, spawn_dropDown]() {if (spawn_switch->isPressed()) { spawn_dropDown->enabled = true; conf::mode = Mode::SPAWN; } });
+		spawn_switch->setOnAction([spawn_switch, spawn_settings]() {
+			if (spawn_switch->isPressed()) { spawn_settings->enabled = true; conf::mode = Mode::SPAWN; }
+			else { spawn_settings->enabled = false; }
+			});
 
 		text.setString("drag");
 		SwitchableButton* drag_switch = new SwitchableButton(new RoundRectShape({ 0.0f, 0.0f }, NEW_BUTTON_SIZE, BUTTON_RADIUS), text, 1);
-		drag_switch->setOnAction([drag_switch, spawn_dropDown]() {if (drag_switch->isPressed()) { spawn_dropDown->enabled = false; conf::mode = Mode::DRAG; } });
+		drag_switch->setOnAction([drag_switch, spawn_dropDown]() {if (drag_switch->isPressed()) conf::mode = Mode::DRAG;  });
 
 		text.setString("delete");
 		SwitchableButton* delete_switch = new SwitchableButton(new RoundRectShape({ 0.0f, 0.0f }, NEW_BUTTON_SIZE, BUTTON_RADIUS), text, 1);
-		delete_switch->setOnAction([delete_switch, spawn_dropDown]() {if (delete_switch->isPressed()) { spawn_dropDown->enabled = false;  conf::mode = Mode::DELETE; }});
+		delete_switch->setOnAction([delete_switch, spawn_dropDown]() {if (delete_switch->isPressed()) conf::mode = Mode::DELETE; });
 
 		SwitchableButtonGroup* mode_group = new SwitchableButtonGroup(new RectShape({ 0.0f, 0.0f }, { 0.0f, 0.0f }), 1);
 		mode_group->viewable = false;
@@ -162,7 +193,7 @@ public:
 		mode_layout->addItem(spawn_switch);
 		mode_layout->addItem(drag_switch);
 		mode_layout->addItem(delete_switch);
-		mode_layout->addItem(spawn_dropDown);
+		mode_layout->addItem(spawn_settings);
 		mode_layout->mainShape->setAllColorsTo(sf::Color(255, 255, 255, 100));
 		mode_layout->mainShape->setActiveColorToState(0);
 		mode_layout->mainShape->updateColors();

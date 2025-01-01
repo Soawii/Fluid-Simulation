@@ -17,7 +17,7 @@ public:
 		sim.addParticle(p);
 	}
 
-	void spawnLine(Particle p, int additionalParticles, float spaceBetween)
+	void spawnLine(Particle p, float spaceBetween)
 	{
 		spawnParticle(p);
 		sf::Vector2f v = p.v, norm_v(v.y, -v.x);
@@ -29,13 +29,25 @@ public:
 			norm_v = sf::Vector2f(cos(angle), sin(angle));
 		}
 
-		for (int i = 1; i <= additionalParticles; i++)
+		for (int i = 1; i <= (conf::particle_amount - 1) / 2; i++)
 		{
-			Particle left(p.pos + spaceBetween * norm_v * float(i)), right(p.pos - spaceBetween * norm_v * float(i));
+			Particle left(p.pos + spaceBetween * norm_v * float(i));
 			left.v = p.v;
-			right.v = p.v;
 			spawnParticle(left);
+		}
+
+		for (int i = 1; i <= (conf::particle_amount - 1) / 2; i++)
+		{
+			Particle right(p.pos - spaceBetween * norm_v * float(i));
+			right.v = p.v;
 			spawnParticle(right);
+		}
+
+		if ((conf::particle_amount - 1) % 2 == 1)
+		{
+			Particle left(p.pos + spaceBetween * norm_v * float((conf::particle_amount - 1) / 2 + 1));
+			left.v = p.v;
+			spawnParticle(left);
 		}
 	}
 };
