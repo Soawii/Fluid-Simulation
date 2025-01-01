@@ -16,7 +16,6 @@
 class Simulation : public sf::Drawable
 {
 public:
-	int n = 0;
 	std::vector<Particle> particles;
 	std::vector<CollisionObject*> objects;
 	ParticleGrid grid = ParticleGrid(10, 10, sf::Vector2f(conf::X, conf::Y));
@@ -35,7 +34,8 @@ public:
 
 		for (int i = 0; i < i_max; i++) {
 			for (int j = 0; j < j_max; j++) {
-				addParticle(Particle(sf::Vector2f(X_START + j * space_between, Y_START - i * space_between)));
+				particles.push_back(Particle(sf::Vector2f(X_START + j * space_between, Y_START - i * space_between)));
+				grid.addParticle(particles.back(), particles.size() - 1);
 			}
 		}
 
@@ -95,10 +95,10 @@ public:
 			p.v = (p.pos - p.prev_pos) / dt;
 		}
 
-		std::cout << "viscosity " << viscosity / 1000.0f << ", relaxation " << relaxation / 1000.0f
+		/*std::cout << "viscosity " << viscosity / 1000.0f << ", relaxation " << relaxation / 1000.0f
 			<< ", adjust strings " << (adjust_strings) / 1000.0f 
 			<< ", apply strings " << (apply_strings) / 1000.0f <<  ", collisions " << collisions / 1000.0f
-			<< ", other " << (gravity + velocity + bounds_update) / 1000.0f << std::endl;
+			<< ", other " << (gravity + velocity + bounds_update) / 1000.0f << std::endl;*/
 	}
 
 	void applyCollisions()

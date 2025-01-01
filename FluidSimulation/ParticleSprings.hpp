@@ -18,24 +18,21 @@ public:
 	void addParticle()
 	{
 		particleAmount++;
-		if (particleAmount <= maxParticleAmount)
+		if (maxParticleAmount >= particleAmount)
 			return;
 
 		maxParticleAmount *= 2;
-		std::vector<float> new_arr(maxParticleAmount * maxParticleAmount, 0.0f);
+		arr.resize(maxParticleAmount * maxParticleAmount, 0.0f);
 		std::vector<int> new_keys;
 		new_keys.reserve(keys.size());
 
 		for (int p : keys)
 		{
-			std::pair<int, int> id = std::make_pair(p / (maxParticleAmount / 2), p % (maxParticleAmount / 2));
+			std::pair<int, int> id = std::make_pair(2 * p / maxParticleAmount, p % (maxParticleAmount / 2));
 			int new_id = getSpringId(id.first, id.second);
 			new_keys.push_back(new_id);
-			new_arr[new_id] = arr[p];
 		}
-
 		keys = new_keys;
-		arr = new_arr;
 	}
 
 	int getSpringId(int i, int j) const

@@ -1044,12 +1044,9 @@ namespace Buttons
 		Label* label;
 		float point;
 
-		bool changing_value_set = false;
-		float* float_changing_value = nullptr;
-		int* int_changing_value = nullptr;
+		float* changing_value = nullptr;
 		float min = 0.0f, max = 1.0f;
 		std::string name;
-		int precision = 2;
 
 		Slider(RoundRectShape* shape_, sf::Text text, float start, int priority_)
 			: point(start), FocusableWidget(shape_, priority_, false)
@@ -1067,32 +1064,15 @@ namespace Buttons
 			sliderShape->recompose();
 		}
 
-		void setParameters(float min_, float max_, std::string name_, int precision_ = 2)
+		void setChangingValue(float* changing_value_, float min_, float max_, std::string name_)
 		{
-			precision = precision_;
 			name = name_;
+			changing_value = changing_value_;
 			min = min_;
 			max = max_;
-		}
+			point = (*changing_value_ - min) / (max - min);
 
-		void setChangingValue(float* float_changing_value_, float min_, float max_, std::string name_, int precision_ = 2)
-		{
-			setParameters(min_, max_, name_, precision_);
-			float_changing_value = float_changing_value_;
-			point = (*float_changing_value - min) / (max - min);
-
-			label->setString(name + ": " + to_string_with_precision(*float_changing_value, precision));
-			sliderShape->updateSlider(point);
-			sliderShape->recompose();
-		}
-
-		void setChangingValue(int* int_changing_value_, float min_, float max_, std::string name_, int precision_ = 2)
-		{
-			setParameters(min_, max_, name_, precision_);
-			int_changing_value = int_changing_value_;
-			point = (*int_changing_value - min) / (max - min);
-
-			label->setString(name + ": " + to_string_with_precision(*int_changing_value, precision));
+			label->setString(name + ": " + to_string_with_precision(*changing_value, 2));
 			sliderShape->updateSlider(point);
 			sliderShape->recompose();
 		}
@@ -1161,20 +1141,12 @@ namespace Buttons
 					point = new_point;
 					sliderShape->updateSlider(point);
 
-					if (float_changing_value != nullptr)
+					if (changing_value != nullptr)
 					{
 						float new_value = min + point * (max - min);
-						if (new_value != *float_changing_value) {
-							*float_changing_value = new_value;
-							label->setString(name + ": " + to_string_with_precision(*float_changing_value, precision));
-						}
-					}
-					else if (int_changing_value != nullptr)
-					{
-						int new_value = round(min + point * (max - min));
-						if (new_value != *int_changing_value) {
-							*int_changing_value = new_value;
-							label->setString(name + ": " + to_string_with_precision(*int_changing_value, precision));
+						if (new_value != *changing_value) {
+							*changing_value = new_value;
+							label->setString(name + ": " + to_string_with_precision(*changing_value, 2));
 						}
 					}
 

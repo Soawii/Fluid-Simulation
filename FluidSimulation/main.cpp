@@ -4,7 +4,7 @@
 #include "MouseHandler.hpp"
 #include "Menu.hpp"
 
-int main() 
+int WinMain() 
 {
 	srand(time(NULL));
 
@@ -15,7 +15,6 @@ int main()
 	conf::circle.setRadius(conf::particle_radius);
 	conf::circle.setFillColor(conf::COLOR_PARTICLE);
 	conf::circle.setOrigin(sf::Vector2f(conf::particle_radius, conf::particle_radius));
-	conf::circle.setPointCount(9);
 	
 	Simulation sim;
 	MouseInputHandler mouse_handler(sim);
@@ -24,7 +23,6 @@ int main()
 
 	while (conf::window.isOpen())
 	{
-		//std::cout << clock.restart().asMilliseconds() << '\n';
 		sf::Event event;
 		while (conf::window.pollEvent(event))
 		{
