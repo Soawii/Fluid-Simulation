@@ -19,7 +19,7 @@ enum class SpawnMode
 namespace conf
 {
 	int FPS = 60;
-	const float dt = 1.0 / FPS;
+	float dt = 1.0 / FPS;
 	const float G = 9.81f;
 
 	int WIDTH = 1280, HEIGHT = 700;
@@ -41,6 +41,9 @@ namespace conf
 	SpawnMode spawnMode = SpawnMode::PARTICLE;
 
 	float polygonSpawnRadius = 0.2f;
+	float rectangle_thickness = 0.8f;
+	int particle_amount = 3;
+
 	sf::Color COLOR_POLYGON_RADIUS(255, 150, 0);
 
 	sf::RenderWindow window;
