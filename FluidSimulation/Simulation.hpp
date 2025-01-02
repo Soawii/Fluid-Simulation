@@ -90,6 +90,9 @@ public:
 		doubleDensityRelaxation(dt);
 		float relaxation = clock.restart().asMicroseconds();
 
+		handleStickiness(dt);
+		float stickiness = clock.restart().asMicroseconds();
+
 		applyCollisions();
 		float collisions = clock.restart().asMicroseconds();
 
@@ -105,7 +108,30 @@ public:
 		/*std::cout << "viscosity " << viscosity / 1000.0f << ", relaxation " << relaxation / 1000.0f
 			<< ", adjust strings " << (adjust_strings) / 1000.0f 
 			<< ", apply strings " << (apply_strings) / 1000.0f <<  ", collisions " << collisions / 1000.0f
-			<< ", other " << (gravity + velocity + bounds_update) / 1000.0f << std::endl;*/
+			<< ", stickiness " << (stickiness) / 1000.0f << ", other " << (gravity + velocity + bounds_update) / 1000.0f << std::endl;*/
+	}
+
+	void handleStickiness(float dt)
+	{
+		const sf::Vector2f NULL_VECTOR = { 0.0f, 0.0f };
+		const int PARTICLES_SIZE = particles.size();
+		const int OBJECTS_SIZE = objects.size();
+
+		#pragma omp parallel for
+		for (int i = 0; i < PARTICLES_SIZE; i++)
+		{
+			for (int j = 0; j < OBJECTS_SIZE; j++)
+			{
+				sf::Vector2f nearest_vector = objects[j]->getNearestVector(particles[i]);
+				if (nearest_vector != NULL_VECTOR)
+				{
+					const float len = getLen(nearest_vector);
+					const float sticky_term = dt * conf::k_stick * len * (1 - len / conf::stickness_distance) * -1;
+					nearest_vector = nearest_vector / len * sticky_term;
+					particles[i].pos += nearest_vector;
+				}
+			}
+		}
 	}
 
 	void applyCollisions()

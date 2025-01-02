@@ -16,9 +16,10 @@ class CollisionObject : public sf::Drawable
 {
 public:
 	ObjectType type;
-	virtual bool isColliding(const Particle& p) = 0;
-	virtual void handleCollision(Particle& p) = 0;
+	virtual bool isColliding(const Particle& p) const = 0;
+	virtual void handleCollision(Particle& p) const = 0;
 	virtual void move(sf::Vector2f to_move) = 0;
+	virtual sf::Vector2f getNearestVector(const Particle& p) const = 0;
 };
 
 class PolygonObject : public CollisionObject
@@ -66,7 +67,7 @@ public:
 			normals[i] /= getLen(normals[i]);
 	}
 
-	bool isColliding(const Particle& p) override
+	bool isColliding(const Particle& p) const override
 	{
 		if (p.pos.x < min.x || p.pos.y < min.y || p.pos.x > max.x || p.pos.y > max.y)
 			return false;
@@ -85,7 +86,7 @@ public:
 		return true;
 	}
 
-	void handleCollision(Particle& p) override
+	void handleCollision(Particle& p) const override
 	{
 		if (p.pos.x < min.x || p.pos.y < min.y || p.pos.x > max.x || p.pos.y > max.y)
 			return;
@@ -110,6 +111,37 @@ public:
 			}
 		}
 		p.pos += bestNormal * -1.0f * smallestDot;
+	}
+
+	sf::Vector2f getNearestVector(const Particle& p) const override
+	{
+		if (p.pos.x < min.x - conf::stickness_distance || p.pos.y < min.y - conf::stickness_distance
+			|| p.pos.x > max.x + conf::stickness_distance || p.pos.y > max.y + conf::stickness_distance)
+			return { 0.0f, 0.0f };
+
+		sf::Vector2f best_normal = { 0.0f, 0.0f };
+		float smallest = 1000000000.0f;
+
+		for (int i = 0; i < vertices.size(); i++)
+		{
+			sf::Vector2f edge = vertices[(i + 1) % vertices.size()] - vertices[i];
+			const float len = getLen(edge);
+			edge /= len;
+			sf::Vector2f vertex_to_particle = p.pos - vertices[i];
+			const float dot = edge.x * vertex_to_particle.x + edge.y * vertex_to_particle.y;
+
+			if (dot > 0 && dot < len)
+			{
+				const float distance = vertex_to_particle.x * normals[i].x + vertex_to_particle.y * normals[i].y;
+				if (distance < smallest && distance > 0 && distance < conf::stickness_distance)
+				{
+					best_normal = normals[i];
+					smallest = distance;
+				}
+			}
+		}
+
+		return best_normal * smallest;
 	}
 
 	void move(sf::Vector2f to_move) override
@@ -158,12 +190,12 @@ public:
 		drawable_circle->setPointCount(100);
 	}
 
-	bool isColliding(const Particle& p) override
+	bool isColliding(const Particle& p) const override
 	{
 		return getLen(p.pos - position) <= radius;
 	}
 
-	void handleCollision(Particle& p) override
+	void handleCollision(Particle& p) const override
 	{
 		sf::Vector2f direction = p.pos - position;
 		const float length = getLen(direction);
@@ -178,6 +210,17 @@ public:
 	{
 		position += to_move;
 		drawable_circle->setPosition(sf::Vector2f(position.x, conf::Y - position.y));
+	}
+
+
+	sf::Vector2f getNearestVector(const Particle& p) const override
+	{
+		sf::Vector2f diff = p.pos - position;
+		const float len = getLen(diff);
+		if (len >= radius + conf::stickness_distance)
+			return { 0.0f, 0.0f };
+		diff /= len;
+		return diff * (radius + conf::stickness_distance - len);
 	}
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override

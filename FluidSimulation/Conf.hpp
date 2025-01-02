@@ -27,10 +27,11 @@ namespace conf
 
 	float particle_radius = std::min(X, Y) / 200.0f;
 	float h = std::min(X, Y) / 45.0f;										//	interaction radius
-	float k = 5.0f, k_near = 8.0f * 10, k_spring = 0.0f;					//	stiffness / near stiffness
+	float k = 5.0f, k_near = 8.0f * 10, k_spring = 0.0f, k_stick = 5.0f;	//	stiffness / near stiffness
 	float density_rest = 10.0f;												//	rest density
 	float yield_ratio = 0.2f, plasticity = 40.0f;							//	yield ratio / plasticity
 	float alpha_viscosity = 4.0f, beta_viscosity = 0.0f;
+	float stickness_distance = h;
 	const float PI = 3.1415;
 
 	const int START_MAX_PARTICLE_AMOUNT = 10000;

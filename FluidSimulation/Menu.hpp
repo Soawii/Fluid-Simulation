@@ -18,6 +18,8 @@ public:
 		float MIN_STIFFNESS = 0.0f, MAX_STIFFNESS = 20.0f;
 		float MIN_NEAR_STIFFNESS = 0.0f, MAX_NEAR_STIFFNESS = 200.0f;
 		float MIN_SPRING_STIFFNESS = 0.0f, MAX_SPRING_STIFFNESS = 4000.0f;
+		float MIN_STICKINESS = 0.0f, MAX_STICKINESS = 20.0f;
+		float MIN_STICKINESS_DISTANCE = 0.0f, MAX_STICKINESS_DISTANCE = 5.0f;
 		float MIN_REST_DENSITY = 1.0f, MAX_REST_DENSITY = 30.0f;
 		float MIN_YIELD_RATIO = 0.0f, MAX_YIELD_RATIO = 1.0f;
 		float MIN_PLASTICITY = 0.0f, MAX_PLASTICITY = 100.0f;
@@ -44,6 +46,12 @@ public:
 
 		Slider* near_stiffness = new Slider(new RoundRectShape(sf::Vector2f(200.0f, 200.0f), sf::Vector2f(150.0f, 30.0f), 10.0f), text, 0.5, 1);
 		near_stiffness->setChangingValue(&conf::k_near, MIN_NEAR_STIFFNESS, MAX_NEAR_STIFFNESS, "near stiffness");
+
+		Slider* stickiness = new Slider(new RoundRectShape(sf::Vector2f(200.0f, 200.0f), sf::Vector2f(150.0f, 30.0f), 10.0f), text, 0.5, 1);
+		stickiness->setChangingValue(&conf::k_stick, MIN_STICKINESS, MAX_STICKINESS, "stickiness");
+
+		Slider* stickiness_distance = new Slider(new RoundRectShape(sf::Vector2f(200.0f, 200.0f), sf::Vector2f(150.0f, 30.0f), 10.0f), text, 0.5, 1);
+		stickiness_distance->setChangingValue(&conf::stickness_distance, MIN_STICKINESS_DISTANCE, MAX_STICKINESS_DISTANCE, "stickiness dist.");
 
 		Slider* rest_density = new Slider(new RoundRectShape(sf::Vector2f(200.0f, 200.0f), sf::Vector2f(150.0f, 30.0f), 10.0f), text, 0.5, 1);
 		rest_density->setChangingValue(&conf::density_rest, MIN_REST_DENSITY, MAX_REST_DENSITY, "rest density");
@@ -87,6 +95,8 @@ public:
 		settings_layout->addItem(interaction_radius);
 		settings_layout->addItem(stiffness);
 		settings_layout->addItem(near_stiffness);
+		settings_layout->addItem(stickiness);
+		settings_layout->addItem(stickiness_distance);
 		settings_layout->addItem(rest_density);
 		settings_layout->addItem(timeframe);
 		settings_layout->addItem(spring_stiffness);
