@@ -74,6 +74,12 @@ public:
 		viscosity_layout->addItem(beta_viscosity);
 		viscosity_layout->mode = ContainerMode::FIT_WIDGETS;
 
+		text.setString("delete water");
+		ClickableButton* delete_water = new ClickableButton(new RoundRectShape({ 200.0f, 200.0f }, sf::Vector2f(150.0f, 30.0f), 10.0f), text, 1);
+		delete_water->setOnAction([&sim]() {
+			sim.deleteWater();
+			});
+
 		LinearLayout* settings_layout = new LinearLayout(new RoundRectShape(sf::Vector2f(100.0f, 100.0f), sf::Vector2f(200.0f, 400.0f), 20.0f), 1, true);
 		settings_layout->mainShape->setAllColorsTo(sf::Color(255, 255, 255, 100));
 		settings_layout->mainShape->setActiveColorToState(0);
@@ -86,6 +92,7 @@ public:
 		settings_layout->addItem(spring_stiffness);
 		settings_layout->addItem(yield_plasticity_layout);
 		settings_layout->addItem(viscosity_layout);
+		settings_layout->addItem(delete_water);
 		settings_layout->drawShape = true;
 		settings_layout->widget_padding = 10.0f;
 		settings_layout->start_padding = sf::Vector2f(10.0f, 10.0f);

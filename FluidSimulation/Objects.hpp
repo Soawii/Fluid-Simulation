@@ -5,9 +5,17 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 
+enum class ObjectType
+{
+	CIRCLE = 0,
+	RECT = 1,
+	POLYGON = 2
+};
+
 class CollisionObject : public sf::Drawable
 {
 public:
+	ObjectType type;
 	virtual bool isColliding(const Particle& p) = 0;
 	virtual void handleCollision(Particle& p) = 0;
 	virtual void move(sf::Vector2f to_move) = 0;
@@ -21,7 +29,10 @@ public:
 	std::vector<sf::Vertex> drawable_vertices;
 	sf::Vector2f min, max;
 
-	PolygonObject() {}
+	PolygonObject()
+	{
+		type = ObjectType::POLYGON;
+	}
 
 	void initiateVertices(std::vector<sf::Vector2f> vertices_)
 	{
@@ -121,6 +132,7 @@ class RectangleObject : public PolygonObject
 public:
 	RectangleObject(sf::Vector2f start, sf::Vector2f end, float thickness)
 	{
+		type = ObjectType::RECT;
 		sf::Vector2f p = end - start;
 		sf::Vector2f p_n(-p.y, p.x);
 		p_n = p_n / getLen(p_n) * thickness / 2.0f;
@@ -138,6 +150,7 @@ public:
 
 	CircleObject(sf::Vector2f position, float radius) : position(position), radius(radius)
 	{
+		type = ObjectType::CIRCLE;
 		drawable_circle = new sf::CircleShape(radius);
 		drawable_circle->setOrigin(radius, radius);
 		drawable_circle->setFillColor(conf::COLOR_OBJECT);

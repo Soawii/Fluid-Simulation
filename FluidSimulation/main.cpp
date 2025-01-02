@@ -4,7 +4,7 @@
 #include "MouseHandler.hpp"
 #include "Menu.hpp"
 
-int WinMain() 
+int main() 
 {
 	srand(time(NULL));
 
@@ -24,7 +24,6 @@ int WinMain()
 
 	while (conf::window.isOpen())
 	{
-		//std::cout << clock.restart().asMilliseconds() << '\n';
 		sf::Event event;
 		while (conf::window.pollEvent(event))
 		{
@@ -47,6 +46,7 @@ int WinMain()
 
 		conf::window.draw(sim);
 		conf::window.draw(menu);
+		conf::window.draw(mouse_handler);
 
 		conf::window.display();
 	}

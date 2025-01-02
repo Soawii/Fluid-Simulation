@@ -42,6 +42,13 @@ public:
 		springs = ParticleSprings();
 	}
 
+	void deleteWater()
+	{
+		particles.clear();
+		createGrid();
+		springs = ParticleSprings();
+	}
+
 	void createGrid()
 	{
 		int GRID_SIZE_X = ceil(conf::X / conf::h), GRID_SIZE_Y = ceil(conf::Y / conf::h);

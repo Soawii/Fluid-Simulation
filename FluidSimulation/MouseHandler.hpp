@@ -5,7 +5,7 @@
 #include "Conf.hpp"
 #include "Objects.hpp"
 
-class MouseInputHandler
+class MouseInputHandler : public sf::Drawable
 {
 public:
 	Simulation& sim;
@@ -15,6 +15,8 @@ public:
 	std::vector<sf::Vector2f> polygon_vertices;
 	CollisionObject* drag_object = nullptr;
 	sf::Vector2f prev_mouse_pos = {0.0f, 0.0f};
+
+	std::vector<sf::CircleShape*> rect_circles;
 
 	MouseInputHandler(Simulation& sim) : sim(sim), spawner(sim) {}
 
@@ -37,6 +39,14 @@ public:
 
 						if (conf::spawnMode == SpawnMode::RECT)
 						{
+							for (int i = 0; i < rect_circles.size(); i++)
+							{
+								if (getLen(rect_circles[i]->getPosition() - mouse_pos) <= conf::polygonSpawnRadius / 1.3f)
+								{
+									mouse_pos = rect_circles[i]->getPosition();
+									break;
+								}
+							}
 							sim.objects.push_back(new RectangleObject(leftButtonPressedPos, mouse_pos, conf::rectangle_thickness));
 						}
 						else if (conf::spawnMode == SpawnMode::CIRCLE)
@@ -97,6 +107,17 @@ public:
 						{
 							polygon_vertices.clear();
 							polygon_vertices.push_back(leftButtonPressedPos);
+						}
+						else if (conf::spawnMode == SpawnMode::RECT)
+						{
+							for (int i = 0; i < rect_circles.size(); i++)
+							{
+								if (getLen(rect_circles[i]->getPosition() - mouse_pos) <= conf::polygonSpawnRadius / 1.3f)
+								{
+									leftButtonPressedPos = rect_circles[i]->getPosition();
+									break;
+								}
+							}
 						}
 					}
 				}
@@ -203,6 +224,60 @@ public:
 					}
 				}
 			}
+
+			if (conf::spawnMode == SpawnMode::RECT)
+			{
+				int rect_count = 0;
+				for (int i = 0; i < sim.objects.size(); i++)
+				{
+					if (sim.objects[i]->type == ObjectType::RECT)
+						rect_count++;
+				}
+
+				for (int i = 0; i < rect_circles.size(); i++)
+					delete rect_circles[i];
+				rect_circles.clear();
+				for (int i = 0; i < sim.objects.size(); i++)
+				{
+					if (sim.objects[i]->type != ObjectType::RECT)
+						continue;
+					RectangleObject* rect = (RectangleObject*)sim.objects[i];
+					sf::Vector2f vec1 = rect->vertices[1] - rect->vertices[0];
+					sf::Vector2f vec2 = rect->vertices[3] - rect->vertices[2];
+					vec1 /= getLen(vec1);
+					vec2 /= getLen(vec2);
+
+					sf::CircleShape* circles[4] = { new sf::CircleShape(conf::polygonSpawnRadius / 1.3f, 9),
+						new sf::CircleShape(conf::polygonSpawnRadius / 1.3f, 9),
+						new sf::CircleShape(conf::polygonSpawnRadius / 1.3f, 9),
+						new sf::CircleShape(conf::polygonSpawnRadius / 1.3f, 9) };
+
+					circles[0]->setPosition(rect->vertices[0] + vec1 * conf::rectangle_thickness / 2.0f - rect->normals[0] * 0.05f);
+					circles[1]->setPosition(rect->vertices[1] - vec1 * conf::rectangle_thickness / 2.0f - rect->normals[0] * 0.05f);
+					circles[2]->setPosition(rect->vertices[2] + vec2 * conf::rectangle_thickness / 2.0f - rect->normals[2] * 0.05f);
+					circles[3]->setPosition(rect->vertices[3] - vec2 * conf::rectangle_thickness / 2.0f - rect->normals[2] * 0.05f);
+
+					for (int j = 0; j < 4; j++)
+					{
+						circles[j]->setOrigin(conf::polygonSpawnRadius / 1.3f, conf::polygonSpawnRadius / 1.3f);
+						circles[j]->setFillColor(conf::COLOR_POLYGON_RADIUS);
+						rect_circles.push_back(circles[j]);
+					}
+				}
+
+				for (int i = 0; i < rect_circles.size(); i++)
+				{
+					if (getLen(rect_circles[i]->getPosition() - mouse_pos) <= conf::polygonSpawnRadius / 1.3f)
+					{
+						rect_circles[i]->setScale(1.5f, 1.5f);
+					}
+					else
+					{
+						rect_circles[i]->setScale(1.0f, 1.0f);
+					}
+
+				}
+			}
 		}
 		else if (conf::mode == Mode::DRAG)
 		{
@@ -240,5 +315,22 @@ public:
 		}
 
 		prev_mouse_pos = mouse_pos;
+	}
+
+	void draw(sf::RenderTarget& target, sf::RenderStates states) const override
+	{
+		if (conf::mode == Mode::SPAWN)
+		{
+			if (conf::spawnMode == SpawnMode::RECT)
+			{
+				for (int i = 0; i < rect_circles.size(); i++)
+				{
+					sf::Vector2f pos = rect_circles[i]->getPosition();
+					rect_circles[i]->setPosition({ pos.x, conf::Y - pos.y });
+					conf::window.draw(*rect_circles[i]);
+					rect_circles[i]->setPosition(pos);
+				}
+			}
+		}
 	}
 };
