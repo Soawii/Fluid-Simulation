@@ -4,7 +4,7 @@
 #include "MouseHandler.hpp"
 #include "Menu.hpp"
 
-int main() 
+int WinMain() 
 {
 	srand(time(NULL));
 

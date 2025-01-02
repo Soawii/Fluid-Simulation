@@ -45,15 +45,42 @@ public:
 						}
 						else if (conf::spawnMode == SpawnMode::POLYGON)
 						{
-							if (polygon_vertices.size() > 2 && getLen(mouse_pos - polygon_vertices[0]) <= conf::polygonSpawnRadius)
+
+							bool polygon_good = true;
+							if (polygon_vertices.size() > 2)
+							{
+								if (polygon_vertices.size() > 2 && getLen(mouse_pos - polygon_vertices[0]) <= conf::polygonSpawnRadius) {}
+								else
+									polygon_vertices.push_back(mouse_pos);
+
+								PolygonObject polygon;
+								polygon.initiateVertices(polygon_vertices);
+								for (int i = 0; i < polygon_vertices.size(); i++)
+								{
+									Particle temp(polygon_vertices[i]);
+									if (!polygon.isColliding(temp))
+									{
+										polygon_good = false;
+										break;
+									}
+								}
+
+								if (polygon_vertices.size() > 2 && getLen(mouse_pos - polygon_vertices[0]) <= conf::polygonSpawnRadius) {}
+								else
+									polygon_vertices.pop_back();
+							}
+
+							if (polygon_vertices.size() > 2 && getLen(mouse_pos - polygon_vertices[0]) <= conf::polygonSpawnRadius && polygon_good)
 							{
 								PolygonObject* polygon = new PolygonObject();
 								polygon->initiateVertices(polygon_vertices);
 								sim.objects.push_back(polygon);
+								polygon_vertices.clear();
 							}
 							else
 							{
-								polygon_vertices.push_back(mouse_pos);
+								if (polygon_good)
+									polygon_vertices.push_back(mouse_pos);
 								enteringObject = true;
 								leftButtonPressedPos = mouse_pos;
 							}

@@ -95,10 +95,10 @@ public:
 			p.v = (p.pos - p.prev_pos) / dt;
 		}
 
-		std::cout << "viscosity " << viscosity / 1000.0f << ", relaxation " << relaxation / 1000.0f
+		/*std::cout << "viscosity " << viscosity / 1000.0f << ", relaxation " << relaxation / 1000.0f
 			<< ", adjust strings " << (adjust_strings) / 1000.0f 
 			<< ", apply strings " << (apply_strings) / 1000.0f <<  ", collisions " << collisions / 1000.0f
-			<< ", other " << (gravity + velocity + bounds_update) / 1000.0f << std::endl;
+			<< ", other " << (gravity + velocity + bounds_update) / 1000.0f << std::endl;*/
 	}
 
 	void applyCollisions()
@@ -521,14 +521,15 @@ public:
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override
 	{
-		for (CollisionObject* object : objects)
-		{
-			target.draw(*object);
-		}
 		for (const Particle& p : particles)
 		{
 			conf::circle.setPosition(p.pos.x, conf::Y - p.pos.y);
 			target.draw(conf::circle);
+		}
+
+		for (CollisionObject* object : objects)
+		{
+			target.draw(*object);
 		}
 	}
 };

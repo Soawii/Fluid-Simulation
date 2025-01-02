@@ -66,8 +66,8 @@ public:
 		{
 			const sf::Vector2f vert_to_point = position - vertices[i];
 			const float dot = vert_to_point.x * normals[i].x + vert_to_point.y * normals[i].y;
-			all_positive &= (dot > 0);
-			all_negative &= (dot < 0);
+			all_positive &= (dot >= 0);
+			all_negative &= (dot <= 0);
 			if (!all_positive && !all_negative)
 				return false;
 		}
@@ -88,8 +88,8 @@ public:
 		{
 			const sf::Vector2f vert_to_point = position - vertices[i];
 			const float dot = vert_to_point.x * normals[i].x + vert_to_point.y * normals[i].y;
-			all_positive &= (dot > 0);
-			all_negative &= (dot < 0);
+			all_positive &= (dot >= 0);
+			all_negative &= (dot <= 0);
 			if (!all_positive && !all_negative)
 				return;
 			if (abs(dot) < abs(smallestDot))
