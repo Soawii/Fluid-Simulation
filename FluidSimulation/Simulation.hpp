@@ -17,6 +17,7 @@ class Simulation : public sf::Drawable
 {
 public:
 	int n = 0;
+	std::vector<sf::CircleShape*> circles;
 	std::vector<Particle> particles;
 	std::vector<CollisionObject*> objects;
 	ParticleGrid grid = ParticleGrid(10, 10, sf::Vector2f(conf::X, conf::Y));
@@ -47,6 +48,12 @@ public:
 		particles.clear();
 		createGrid();
 		springs = ParticleSprings();
+
+		for (int i = 0; i < circles.size(); i++)
+		{
+			delete circles[i];
+		}
+		circles.clear();
 	}
 
 	void createGrid()
@@ -67,6 +74,11 @@ public:
 		particles.emplace_back(p);
 		grid.addParticle(particles.back(), particles.size() - 1);
 		springs.addParticle();
+
+		sf::CircleShape* circle = new sf::CircleShape(conf::particle_radius, 9);
+		circle->setOrigin(conf::particle_radius, conf::particle_radius);
+		circle->setFillColor(sf::Color(conf::COLOR_PARTICLE.r + (rand() % 21 - 10), conf::COLOR_PARTICLE.g + (rand() % 21 - 10), conf::COLOR_PARTICLE.b + (rand() % 21 - 10)));
+		circles.push_back(circle);
 	}
 
 	void update(float dt)
@@ -554,10 +566,10 @@ public:
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override
 	{
-		for (const Particle& p : particles)
+		for (int i = 0; i < particles.size(); i++)
 		{
-			conf::circle.setPosition(p.pos.x, conf::Y - p.pos.y);
-			target.draw(conf::circle);
+			circles[i]->setPosition({ particles[i].pos.x, conf::Y - particles[i].pos.y });
+			target.draw(*circles[i]);
 		}
 
 		for (CollisionObject* object : objects)

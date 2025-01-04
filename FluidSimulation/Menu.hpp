@@ -23,8 +23,8 @@ public:
 		float MIN_REST_DENSITY = 1.0f, MAX_REST_DENSITY = 30.0f;
 		float MIN_YIELD_RATIO = 0.0f, MAX_YIELD_RATIO = 1.0f;
 		float MIN_PLASTICITY = 0.0f, MAX_PLASTICITY = 100.0f;
-		float MIN_ALPHA_VISCOSITY = 0.0f, MAX_ALPHA_VISCOSITY = 10.0f;
-		float MIN_BETA_VISCOSITY = 0.0f, MAX_BETA_VISCOSITY = 10.0f;
+		float MIN_ALPHA_VISCOSITY = 0.0f, MAX_ALPHA_VISCOSITY = 100.0f;
+		float MIN_BETA_VISCOSITY = 0.0f, MAX_BETA_VISCOSITY = 1.0f;
 		float MIN_DT = 1.0f / 200, MAX_DT = 1.0f / 30;
 		float MIN_PARTICLE_AMOUNT = 1.0f, MAX_PARTICLE_AMOUNT = 12.0f;
 		float MIN_RECT_THICKNESS = 0.2f, MAX_RECT_THICKNESS = 2.0f;
@@ -72,15 +72,8 @@ public:
 		yield_plasticity_layout->addItem(plasticity);
 		yield_plasticity_layout->mode = ContainerMode::FIT_WIDGETS;
 
-		Slider* alpha_viscosity = new Slider(new RoundRectShape(sf::Vector2f(200.0f, 200.0f), sf::Vector2f(70.0f, 30.0f), 10.0f), text, 0.5, 1);
-		alpha_viscosity->setChangingValue(&conf::alpha_viscosity, MIN_ALPHA_VISCOSITY, MAX_ALPHA_VISCOSITY, "alpha visc.");
-		Slider* beta_viscosity = new Slider(new RoundRectShape(sf::Vector2f(200.0f, 200.0f), sf::Vector2f(70.0f, 30.0f), 10.0f), text, 0.5, 1);
-		beta_viscosity->setChangingValue(&conf::beta_viscosity, MIN_BETA_VISCOSITY, MAX_BETA_VISCOSITY, "beta visc.");
-		LinearLayout* viscosity_layout = new LinearLayout(new RoundRectShape(sf::Vector2f(100.0f, 100.0f), sf::Vector2f(150.0f, 50.0f), 10.0f), 1, false);
-		viscosity_layout->widget_padding = 10.0f;
-		viscosity_layout->addItem(alpha_viscosity);
-		viscosity_layout->addItem(beta_viscosity);
-		viscosity_layout->mode = ContainerMode::FIT_WIDGETS;
+		Slider* alpha_viscosity = new Slider(new RoundRectShape(sf::Vector2f(200.0f, 200.0f), sf::Vector2f(150.0f, 30.0f), 10.0f), text, 0.5, 1);
+		alpha_viscosity->setChangingValue(&conf::alpha_viscosity, MIN_ALPHA_VISCOSITY, MAX_ALPHA_VISCOSITY, "viscosity");
 
 		text.setString("delete water");
 		ClickableButton* delete_water = new ClickableButton(new RoundRectShape({ 200.0f, 200.0f }, sf::Vector2f(150.0f, 30.0f), 10.0f), text, 1);
@@ -101,7 +94,7 @@ public:
 		settings_layout->addItem(timeframe);
 		settings_layout->addItem(spring_stiffness);
 		settings_layout->addItem(yield_plasticity_layout);
-		settings_layout->addItem(viscosity_layout);
+		settings_layout->addItem(alpha_viscosity);
 		settings_layout->addItem(delete_water);
 		settings_layout->drawShape = true;
 		settings_layout->widget_padding = 10.0f;
