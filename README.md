@@ -2,6 +2,6 @@
 ## Download
 Download a zip in releases and open the .exe
 ## Examples
-![](https://github.com/Soawii/FluidSimulation/blob/master/images/fluid2.gif)
-![](https://github.com/Soawii/FluidSimulation/blob/master/images/maze.gif)
-![](https://github.com/Soawii/FluidSimulation/blob/master/images/stickiness.gif)
+![](https://i.imgur.com/EaQJk1n.gif)
+![](https://i.imgur.com/rtK7TRw.gif)
+![](https://i.imgur.com/ZDlYHOM.gif)
