@@ -1,5 +1,5 @@
 # Fluid Simulation
-Simple fluid simulation using SFML with adjustable settings.
+Simple fluid simulation with adjustable settings using SFML.
 
 # Examples
 ![](https://i.imgur.com/EaQJk1n.gif)
@@ -30,10 +30,7 @@ make
 ```  
 ### 4. Run the resulting file  
 #### Windows:
-```bash
-cd build/FluidSimulation/bin/
-```
-And run the .exe
+Run the .exe in the build/FluidSimulation/bin/ folder
 #### Linux:  
 ```bash
 cd FluidSimulation/bin/
