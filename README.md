@@ -1,4 +1,5 @@
-# Fluid Simulation with adjustable settings
+# Fluid Simulation
+Simple fluid simulation with adjustable settings
 
 # Examples
 ![](https://i.imgur.com/EaQJk1n.gif)
