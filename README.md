@@ -1,5 +1,5 @@
 # Fluid Simulation
-Simple fluid simulation with adjustable settings
+Simple fluid simulation using SFML with adjustable settings.
 
 # Examples
 ![](https://i.imgur.com/EaQJk1n.gif)
