@@ -281,7 +281,7 @@ public:
 		#pragma omp parallel for
 		for (int i = 0; i < N; i++)
 		{
-			const Particle& const p = particles[i];
+			const Particle& p = particles[i];
 
 			sf::Vector2i tile = grid.getKeyTile(i);
 			std::vector<int> to_add;
@@ -298,7 +298,7 @@ public:
 					{
 						if (neighbour_key <= i || springs.springExists(i, neighbour_key))
 							continue;
-						const Particle& const neighbour = particles[neighbour_key];
+						const Particle& neighbour = particles[neighbour_key];
 						const float r = p.distanceTo(neighbour);
 						const float q = r / conf::h;
 
@@ -569,6 +569,13 @@ public:
 		for (int i = 0; i < particles.size(); i++)
 		{
 			circles[i]->setPosition({ particles[i].pos.x, conf::Y - particles[i].pos.y });
+			const sf::Color left = conf::COLOR_PARTICLE, right = sf::Color::White;
+			const float c = std::min(1.0f, getLen(particles[i].v) / 20.0f);
+			circles[i]->setFillColor(sf::Color(
+				left.r + c * (right.r - left.r), 
+				left.g + c * (right.g - left.g),
+				left.b + c * (right.b - left.b),
+			 	left.a + c * (right.a - left.a)));
 			target.draw(*circles[i]);
 		}
 

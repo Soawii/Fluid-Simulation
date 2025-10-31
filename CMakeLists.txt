@@ -28,6 +28,13 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/FluidSimulation/bin)
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 add_executable(FluidSimulation ${SOURCES})
 
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+    message(STATUS "OpenMP found: enabling parallelization.")
+    target_link_libraries(FluidSimulation PRIVATE OpenMP::OpenMP_CXX)
+else()
+    message(WARNING "OpenMP not found — continuing without parallelization.")
+endif()
 target_link_libraries(FluidSimulation PRIVATE sfml-graphics sfml-window sfml-system)
 
 set_target_properties(FluidSimulation PROPERTIES

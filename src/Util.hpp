@@ -2,6 +2,7 @@
 
 #include <SFML/Graphics.hpp>
 #include <sstream>
+#include <math.h>
 
 float getLen(sf::Vector2f vec)
 {

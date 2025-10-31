@@ -70,7 +70,7 @@ public:
 		arr[i * maxParticleAmount + j] = L;
 	}
 
-	int deleteSpring(int i, int j)
+	void deleteSpring(int i, int j)
 	{
 		arr[i * maxParticleAmount + j] = 0.0f;
 	}
